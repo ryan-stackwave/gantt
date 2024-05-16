@@ -1,4 +1,4 @@
-name: Publish to npm registry
+name: Publish on NPM
 on:
   push:
     branches:
@@ -25,5 +25,6 @@ jobs:
       - name: Publish package
         if: success()
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn semantic-release
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: yarn release
