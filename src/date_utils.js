@@ -6,41 +6,24 @@ const MINUTE = 'minute';
 const SECOND = 'second';
 const MILLISECOND = 'millisecond';
 
-const SHORTENED = {
-    January: 'Jan',
-    February: 'Feb',
-    March: 'Mar',
-    April: 'Apr',
-    May: 'May',
-    June: 'Jun',
-    July: 'Jul',
-    August: 'Aug',
-    September: 'Sep',
-    October: 'Oct',
-    November: 'Nov',
-    December: 'Dec',
-};
-
 export default {
     parse_duration(duration) {
         const regex = /([0-9])+(y|m|d|h|min|s|ms)/gm;
         const matches = regex.exec(duration);
-
         if (matches !== null) {
-            if (matches[2] === 'y') {
-                return { duration: parseInt(matches[1]), scale: `year` };
-            } else if (matches[2] === 'm') {
-                return { duration: parseInt(matches[1]), scale: `month` };
-            } else if (matches[2] === 'd') {
-                return { duration: parseInt(matches[1]), scale: `day` };
-            } else if (matches[2] === 'h') {
-                return { duration: parseInt(matches[1]), scale: `hour` };
-            } else if (matches[2] === 'min') {
-                return { duration: parseInt(matches[1]), scale: `minute` };
-            } else if (matches[2] === 's') {
-                return { duration: parseInt(matches[1]), scale: `second` };
-            } else if (matches[2] === 'ms') {
-                return { duration: parseInt(matches[1]), scale: `millisecond` };
+            const timescales = {
+                y: 'year',
+                m: 'month',
+                d: 'day',
+                h: 'hour',
+                min: 'minute',
+                s: 'second',
+                ms: 'millisecond',
+            };
+
+            const scale = timescales[matches[2]];
+            if (scale) {
+                return { duration: parseInt(matches[1]), scale };
             }
         }
     },
@@ -93,14 +76,12 @@ export default {
     },
 
     format(date, format_string = 'YYYY-MM-DD HH:mm:ss.SSS', lang = 'en') {
-        const dateTimeFormat = new Intl.DateTimeFormat(lang, {
-            month: 'long',
-        });
-        const month_name = dateTimeFormat.format(date);
-        const month_name_capitalized = month_name.charAt(0).toUpperCase() + month_name.slice(1);
+        const monthName = new Intl.DateTimeFormat(lang, { month: 'long' }).format(date);
+        const shortMonthName = new Intl.DateTimeFormat(lang, { month: 'short' }).format(date);
+        const monthNameCapitalized = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
         const values = this.get_date_values(date).map((d) => padStart(d, 2, 0));
-        const format_map = {
+        const formatMap = {
             YYYY: values[0],
             MM: padStart(+values[1] + 1, 2, 0),
             DD: values[2],
@@ -109,23 +90,23 @@ export default {
             ss: values[5],
             SSS: values[6],
             D: values[2],
-            MMMM: month_name_capitalized,
-            MMM: SHORTENED[month_name_capitalized],
+            MMMM: monthNameCapitalized,
+            MMM: shortMonthName,
         };
 
         let str = format_string;
-        const formatted_values = [];
+        const formattedValues = [];
 
-        Object.keys(format_map)
+        Object.keys(formatMap)
             .sort((a, b) => b.length - a.length) // big string first
             .forEach((key) => {
                 if (str.includes(key)) {
-                    str = str.replaceAll(key, `$${formatted_values.length}`);
-                    formatted_values.push(format_map[key]);
+                    str = str.replaceAll(key, `$${formattedValues.length}`);
+                    formattedValues.push(formatMap[key]);
                 }
             });
 
-        formatted_values.forEach((value, i) => {
+        formattedValues.forEach((value, i) => {
             str = str.replaceAll(`$${i}`, value);
         });
 

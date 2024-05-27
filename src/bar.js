@@ -268,7 +268,6 @@ export default class Bar {
     }
 
     bind() {
-        if (this.invalid) return;
         this.setup_click_event();
     }
 
@@ -279,15 +278,13 @@ export default class Bar {
         });
 
         let timeout;
-        $.on(
-            this.group,
-            'mouseenter',
-            (e) =>
-                (timeout = setTimeout(() => {
-                    this.show_popup(e.offsetX);
-                    document.querySelector(`#${task_id}-highlight`).style.display = 'block';
-                }, 200)),
-        );
+        $.on(this.group, 'mouseenter', (e) => {
+            let offsetX = e.offsetX;
+            timeout = setTimeout(() => {
+                this.show_popup(offsetX);
+                document.querySelector(`#${task_id}-highlight`).style.display = 'block';
+            }, 200);
+        });
 
         $.on(this.group, 'mouseleave', () => {
             clearTimeout(timeout);
