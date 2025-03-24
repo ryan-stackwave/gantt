@@ -282,14 +282,20 @@ export default class Bar {
             let offsetX = e.offsetX;
             timeout = setTimeout(() => {
                 this.show_popup(offsetX);
-                document.querySelector(`#highlight-${task_id}`).style.display = 'block';
+                const highlightElement = document.querySelector(`#highlight-${task_id}`);
+                if (highlightElement) {
+                    highlightElement.style.display = 'block';
+                }
             }, 200);
         });
 
         $.on(this.group, 'mouseleave', () => {
             clearTimeout(timeout);
             this.gantt.popup?.hide?.();
-            document.querySelector(`#highlight-${task_id}`).style.display = 'none';
+            const highlightElement = document.querySelector(`#highlight-${task_id}`);
+            if (highlightElement) {
+                highlightElement.style.display = 'none';
+            }
         });
 
         $.on(this.group, this.gantt.options.popup_trigger, () => {
